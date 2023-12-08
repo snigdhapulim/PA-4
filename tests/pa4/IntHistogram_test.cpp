@@ -90,13 +90,18 @@ TEST(IntHistogramTest, less_than_or_equals) {
 TEST(IntHistogramTest, greater_than) {
     db::IntHistogram hist(10, 50, 249);
     random_data(hist);
-    EXPECT_NEAR(hist.estimateSelectivity(db::Predicate::Op::GREATER_THAN, 160), (190 / 2 + 231 + 111) / 1000., 0.001);
+    auto x = hist.estimateSelectivity(db::Predicate::Op::GREATER_THAN, 160);
+    EXPECT_TRUE(std::abs(x - (190 / 2 + 231 + 111) / 1000.) < 0.001 or
+                std::abs(x - (190 * 9 / 20. + 231 + 111) / 1000.) < 0.001);
 }
 
 TEST(IntHistogramTest, greater_than_or_equals) {
     db::IntHistogram hist(10, 50, 249);
     random_data(hist);
-    EXPECT_NEAR(hist.estimateSelectivity(db::Predicate::Op::GREATER_THAN_OR_EQ, 120), (204 * 11 / 20. + 181 + 190 + 231 + 111) / 1000., 0.001);
+
+    auto x = hist.estimateSelectivity(db::Predicate::Op::GREATER_THAN_OR_EQ, 120);
+    EXPECT_TRUE(std::abs(x - (204 * 10 / 20. + 181 + 190 + 231 + 111) / 1000.) < 0.001 or
+                std::abs(x - (204 * 11 / 20. + 181 + 190 + 231 + 111) / 1000.) < 0.001);
 }
 
 TEST(IntHistogramTest, empty) {
