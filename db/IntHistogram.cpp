@@ -96,8 +96,12 @@ double IntHistogram::estimateSelectivity(Predicate::Op op, int v) const {
         }
 
     }
-    return selectivity;
 
+    if (totalValues == 0) {
+        return 0.0;
+    }
+
+    return selectivity;
 }
 
 double IntHistogram::avgSelectivity() const {
