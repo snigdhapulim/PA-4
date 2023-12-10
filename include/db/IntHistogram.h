@@ -11,6 +11,10 @@ namespace db {
      */
     class IntHistogram : public Histogram {
         // TODO pa4.1: add private members
+        int numBuckets;
+        int minVal, maxVal;
+        std::vector<int> bucketsVec;
+        int totalValues;
     public:
         /**
          * Create a new IntHistogram.
