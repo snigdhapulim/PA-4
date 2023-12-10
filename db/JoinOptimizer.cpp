@@ -38,4 +38,47 @@ int JoinOptimizer::estimateTableJoinCardinality(Predicate::Op joinOp,
 std::vector<LogicalJoinNode> JoinOptimizer::orderJoins(std::unordered_map<std::string, TableStats> stats,
                                                        std::unordered_map<std::string, double> filterSelectivities) {
     // TODO pa4.3: some code goes here
+    PlanCache pc; // Used to store best plans for subsets of joins
+    std::vector<LogicalJoinNode> bestOrder;
+
+    for (size_t i = 1; i <= joins.size(); ++i) {
+        auto subsets = enumerateSubsets(joins, i);
+
+        for (const auto& subset : subsets) {
+            double bestCost = std::numeric_limits<double>::max();
+            std::vector<LogicalJoinNode> bestPlanForSubset;
+
+            for (const auto& joinToRemove : subset) {
+                auto smallerSubset(subset);
+                smallerSubset.erase(joinToRemove);
+
+                CostCard* subplan = pc.get(smallerSubset);
+                if (!subplan) {
+                    continue;
+                }
+
+                auto newPlan = computeCostAndCardOfSubplan(stats, filterSelectivities, joinToRemove, subset, subplan->cost, pc);
+                if (newPlan && newPlan->cost < bestCost) {
+                    bestCost = newPlan->cost;
+
+                    // Construct the join order from the smaller subset and joinToRemove
+                    bestPlanForSubset = std::vector<LogicalJoinNode>(smallerSubset.begin(), smallerSubset.end());
+                    bestPlanForSubset.push_back(joinToRemove);
+                }
+            }
+
+            if (!bestPlanForSubset.empty()) {
+                CostCard* newCostCard = new CostCard{bestCost, /* cardinality= */ 0, bestPlanForSubset};
+            }
+        }
+    }
+
+    // The best plan for the entire set of joins is in the order in which they were added
+    std::unordered_set<LogicalJoinNode> joinSet(joins.begin(), joins.end());
+    auto finalPlan = pc.get(joinSet);
+    if (finalPlan) {
+        bestOrder = finalPlan->plan; // Assuming the best plan is stored in 'plan'
+    }
+
+    return bestOrder;
 }
