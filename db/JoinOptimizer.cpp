@@ -19,18 +19,18 @@ int JoinOptimizer::estimateTableJoinCardinality(Predicate::Op joinOp,
                                                 const std::unordered_map<std::string, int> &tableAliasToId) {
     // TODO pa4.2: some code goes here
     if (joinOp == Predicate::Op::EQUALS) {
-        if (t1pkey && !t2pkey) {
-            // Return the cardinality of the table without the primary key
-            return card2;
-        } else if (!t1pkey && t2pkey) {
-            // Return the cardinality of the table without the primary key
-            return card1;
+        if (t1pkey && t2pkey) {
+            // Both tables have primary keys
+            return std::min(card1, card2);
+        } else if (t1pkey || t2pkey) {
+            // One table has a primary key, and the other does not
+            return (t1pkey) ? card2 : card1;
         } else {
-            // No primary key on either side, or both sides have primary keys
+            // Neither table has a primary key
             return std::max(card1, card2);
         }
     } else {
-        // Non-equality joins (e.g., range joins)
+        // For non-equality joins (e.g., range joins)
         return static_cast<int>(card1 * card2 * 0.3); // 30% of the cross product
     }
 }
