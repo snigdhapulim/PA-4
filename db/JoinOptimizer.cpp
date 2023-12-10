@@ -1,6 +1,7 @@
 #include <db/JoinOptimizer.h>
 #include <db/PlanCache.h>
 #include <cfloat>
+#include <limits>
 
 using namespace db;
 
