@@ -1,5 +1,6 @@
 #include <db/IntHistogram.h>
 #include <sstream>
+#include <vector>
 
 using namespace db;
 

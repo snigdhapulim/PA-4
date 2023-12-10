@@ -3,6 +3,7 @@
 
 #include <db/Histogram.h>
 #include <db/Predicate.h>
+#include <vector>
 
 namespace db {
 
