@@ -5,15 +5,19 @@
 using namespace db;
 
 IntHistogram::IntHistogram(int buckets, int min, int max)
-        : numBuckets(buckets), minVal(min), maxVal(max), totalValues(0) {
+        :minVal(min), maxVal(max), totalValues(0) {
     // TODO pa4.1: some code goes here
-
-    if (numBuckets <= 0) {
+    if (buckets <= 0) {
         throw std::invalid_argument("Number of buckets must be positive");
     }
     if (minVal > maxVal) {
         throw std::invalid_argument("Minimum value cannot be greater than maximum value");
     }
+
+    // Ensure that numBuckets is not greater than the range of values
+    int valueRange = maxVal - minVal + 1;
+    numBuckets = std::min(buckets, valueRange);
+
     bucketsVec=std::vector<int>(numBuckets, 0);
 }
 
@@ -108,7 +112,6 @@ double IntHistogram::estimateSelectivity(Predicate::Op op, int v) const {
         }
 
     }
-
     return selectivity;
 }
 
