@@ -27,6 +27,10 @@ void IntHistogram::addValue(int v) {
 
 double IntHistogram::estimateSelectivity(Predicate::Op op, int v) const {
     // TODO pa4.1: some code goes here
+    if (totalValues == 0) {
+        return 0.0;
+    }
+
     double selectivity = 0.0;
 
     // Handle cases where v is outside the histogram range
@@ -48,6 +52,14 @@ double IntHistogram::estimateSelectivity(Predicate::Op op, int v) const {
     int bucketWidth = (maxVal - minVal + 1) / numBuckets;
     int bucketStart = minVal + bucketIndex * bucketWidth;
     int bucketEnd = bucketStart + bucketWidth - 1;
+
+    if (numBuckets <= 0) {
+        throw std::runtime_error("numBuckets must be greater than zero");
+    }
+    // Ensure bucketWidth is never zero
+    if (bucketWidth <= 0) {
+        throw std::runtime_error("bucketWidth must be greater than zero");
+    }
 
     switch (op) {
         case Predicate::Op::EQUALS: {
@@ -95,10 +107,6 @@ double IntHistogram::estimateSelectivity(Predicate::Op op, int v) const {
             break;
         }
 
-    }
-
-    if (totalValues == 0) {
-        return 0.0;
     }
 
     return selectivity;
